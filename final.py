@@ -143,8 +143,7 @@ def api_delete_bond():
 # Investor Portfolio (Stocks and Bonds)
 @app.route('/api/investor_portfolio', methods=['GET'])
 def api_investor_portfolio():
-    request_data = request.get_json()
-    investor_id = request_data['investorid']
+    investor_id = request.args.get('investorid')  # Get investorid from query parameters
 
     stock_query = f"SELECT s.stockname, st.quantity FROM stocktransaction st JOIN stock s ON st.stockid = s.id WHERE st.investorid = {investor_id}"
     stock_portfolio = execute_read_query(conn, stock_query)
@@ -152,7 +151,10 @@ def api_investor_portfolio():
     bond_query = f"SELECT b.bondname, bt.quantity FROM bondtransaction bt JOIN bond b ON bt.bondid = b.id WHERE bt.investorid = {investor_id}"
     bond_portfolio = execute_read_query(conn, bond_query)
 
-    return jsonify({'stocks': stock_portfolio, 'bonds': bond_portfolio})
+    return jsonify({
+        'stocks': stock_portfolio,
+        'bonds': bond_portfolio
+    })
 
 # Stock Transaction (Buy/Sell)
 @app.route('/api/stock_transaction', methods=['POST'])
