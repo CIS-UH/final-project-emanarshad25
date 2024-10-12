@@ -140,6 +140,7 @@ def api_delete_bond():
     execute_query(conn, query)
     return "Bond deleted successfully"
 
+# Eman's Part 
 # Investor Portfolio (Stocks and Bonds)
 @app.route('/api/investor_portfolio', methods=['GET'])
 def api_investor_portfolio():
