@@ -1,4 +1,6 @@
 # Eman Arshad ID: 2048488
+
+# Amelie's Part 
 import flask
 from flask import jsonify
 from flask import request
@@ -12,6 +14,7 @@ from sql import execute_read_query
 app = flask.Flask(__name__) #sets up application
 app.config["DEBUG"] = True #allows to show errors in browser
 
+#Eman's Credentials 
 conn = create_connection("cis2368fall.c7kgkamim5gh.us-east-1.rds.amazonaws.com", "admin", "Emaan200325", "cis2368falldb")
 cursor = conn.cursor(dictionary = True)
 
