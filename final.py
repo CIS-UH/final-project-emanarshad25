@@ -164,12 +164,15 @@ def api_stock_transaction():
     stock_id = request_data['stockid']
     quantity = request_data['quantity']  # Positive for buy, negative for sell
 
+    # Check current holdings of the stock
     current_query = f"SELECT SUM(quantity) AS total_quantity FROM stocktransaction WHERE investorid = {investor_id} AND stockid = {stock_id}"
     current_quantity = execute_read_query(conn, current_query)[0]['total_quantity'] or 0
 
+    # Check if the sale exceeds holdings
     if quantity < 0 and abs(quantity) > current_quantity:
         return "Sale exceeds current holdings", 400
 
+    # If valid, make the transaction
     query = f"INSERT INTO stocktransaction (investorid, stockid, quantity, date) VALUES ({investor_id}, {stock_id}, {quantity}, NOW())"
     execute_query(conn, query)
     return "Stock transaction successful"
