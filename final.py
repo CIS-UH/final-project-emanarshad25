@@ -163,4 +163,77 @@ def api_delete():
             execute_query(conn, query)
             return "delete request successful"
         
-app.run()
+# Eman's Part
+# Investor Portfolio (Stocks and Bonds)
+@app.route('/api/investor_portfolio', methods=['GET'])
+def api_investor_portfolio():
+    request_data = request.get_json()
+    investor_id = request_data['investorid']
+
+    stock_query = f"SELECT s.stockname, st.quantity FROM stocktransaction st JOIN stock s ON st.stockid = s.id WHERE st.investorid = {investor_id}"
+    stock_portfolio = execute_read_query(conn, stock_query)
+
+    bond_query = f"SELECT b.bondname, bt.quantity FROM bondtransaction bt JOIN bond b ON bt.bondid = b.id WHERE bt.investorid = {investor_id}"
+    bond_portfolio = execute_read_query(conn, bond_query)
+
+    return jsonify({
+        'stocks': stock_portfolio,
+        'bonds': bond_portfolio
+    })
+
+# Stock Transaction (Buy/Sell)
+@app.route('/api/stock_transaction', methods=['POST'])
+def api_stock_transaction():
+    request_data = request.get_json()
+    investor_id = request_data['investorid']
+    stock_id = request_data['stockid']
+    quantity = request_data['quantity']  # Positive for buy, negative for sell
+
+    current_query = f"SELECT SUM(quantity) AS total_quantity FROM stocktransaction WHERE investorid = {investor_id} AND stockid = {stock_id}"
+    current_quantity = execute_read_query(conn, current_query)[0]['total_quantity'] or 0
+
+    if quantity < 0 and abs(quantity) > current_quantity:
+        return "Sale exceeds current holdings", 400
+
+    query = f"INSERT INTO stocktransaction (investorid, stockid, quantity, date) VALUES ({investor_id}, {stock_id}, {quantity}, NOW())"
+    execute_query(conn, query)
+    return "Stock transaction successful"
+
+# Bond Transaction (Buy/Sell)
+@app.route('/api/bond_transaction', methods=['POST'])
+def api_bond_transaction():
+    request_data = request.get_json()
+    investor_id = request_data['investorid']
+    bond_id = request_data['bondid']
+    quantity = request_data['quantity']  # Positive for buy, negative for sell
+
+    current_query = f"SELECT SUM(quantity) AS total_quantity FROM bondtransaction WHERE investorid = {investor_id} AND bondid = {bond_id}"
+    current_quantity = execute_read_query(conn, current_query)[0]['total_quantity'] or 0
+
+    if quantity < 0 and abs(quantity) > current_quantity:
+        return "Sale exceeds current holdings", 400
+
+    query = f"INSERT INTO bondtransaction (investorid, bondid, quantity, date) VALUES ({investor_id}, {bond_id}, {quantity}, NOW())"
+    execute_query(conn, query)
+    return "Bond transaction successful"
+
+# Delete Stock Transaction
+@app.route('/api/delete_stock_transaction', methods=['DELETE'])
+def api_delete_stock_transaction():
+    request_data = request.get_json()
+    transaction_id = request_data['id']
+    query = f"DELETE FROM stocktransaction WHERE id = {transaction_id}"
+    execute_query(conn, query)
+    return "Stock transaction deleted successfully"
+
+# Delete Bond Transaction
+@app.route('/api/delete_bond_transaction', methods=['DELETE'])
+def api_delete_bond_transaction():
+    request_data = request.get_json()
+    transaction_id = request_data['id']
+    query = f"DELETE FROM bondtransaction WHERE id = {transaction_id}"
+    execute_query(conn, query)
+    return "Bond transaction deleted successfully"
+
+if __name__ == '__main__':        
+    app.run()
