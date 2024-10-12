@@ -159,7 +159,7 @@ def api_investor_portfolio():
 # Stock Transaction (Buy/Sell)
 @app.route('/api/stock_transaction', methods=['POST'])
 def api_stock_transaction():
-    request_data = request.get_json()
+    request_data = request.get_json()  # Ensure we're reading JSON
     investor_id = request_data['investorid']
     stock_id = request_data['stockid']
     quantity = request_data['quantity']  # Positive for buy, negative for sell
@@ -176,6 +176,7 @@ def api_stock_transaction():
     query = f"INSERT INTO stocktransaction (investorid, stockid, quantity, date) VALUES ({investor_id}, {stock_id}, {quantity}, NOW())"
     execute_query(conn, query)
     return "Stock transaction successful"
+
 
 # Bond Transaction (Buy/Sell)
 @app.route('/api/bond_transaction', methods=['POST'])
