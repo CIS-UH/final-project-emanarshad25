@@ -2,171 +2,144 @@
 
 # Amelie's Part 
 import flask
-from flask import jsonify
-from flask import request
+from flask import jsonify, request
 import mysql.connector
 from mysql.connector import Error
-from sql import create_connection
-from sql import execute_query
-from sql import execute_read_query
+from sql import create_connection, execute_query, execute_read_query
 
-#setting up an application name
-app = flask.Flask(__name__) #sets up application
-app.config["DEBUG"] = True #allows to show errors in browser
+# Setting up an application name
+app = flask.Flask(__name__)  # sets up application
+app.config["DEBUG"] = True  # allows showing errors in the browser
 
-#Eman's Credentials 
+# Eman's Credentials 
 conn = create_connection("cis2368fall.c7kgkamim5gh.us-east-1.rds.amazonaws.com", "admin", "Emaan200325", "cis2368falldb")
-cursor = conn.cursor(dictionary = True)
+cursor = conn.cursor(dictionary=True)
 
 sql = "SELECT * FROM investor"
 cursor.execute(sql)
 investor_tb = cursor.fetchall()
 
-sql2 = "SELECT * from stock"
+sql2 = "SELECT * FROM stock"
 cursor.execute(sql2)
 stock_tb = cursor.fetchall()
 
-sql3 = "SELECT * from bond"
+sql3 = "SELECT * FROM bond"
 cursor.execute(sql3)
 bond_tb = cursor.fetchall()
 
+# Get all investors
 @app.route('/api/investor', methods=['GET'])
-def api_all():
+def api_get_all_investors():
     call_investor = "SELECT * FROM investor"
     investor_list = execute_read_query(conn, call_investor)
     return jsonify(investor_list)
 
-#returns one investor from ID
+# Get one investor by ID
 @app.route('/api/single_investor', methods=['GET'])
-def api_id():
+def api_get_single_investor():
     request_data = request.get_json()
     fetch_id = request_data["id"]
     for i in range(len(investor_tb)):
         if investor_tb[i]['ID'] == fetch_id:
-            query = f"""SELECT * FROM investor 
-            WHERE id = {fetch_id} """
+            query = f"SELECT * FROM investor WHERE id = {fetch_id}"
             result = execute_read_query(conn, query)
             return jsonify(result)
-    return "no match found"
+    return "No match found"
 
-# add users
-@app.route('/api/add_investor', methods =['POST'])
-def api_add():
+# Add an investor
+@app.route('/api/add_investor', methods=['POST'])
+def api_add_investor():
     request_data = request.get_json()
     new_fname = request_data["firstname"]
     new_lname = request_data["lastname"]
-    query = """INSERT INTO investor (firstname, lastname)
-    VALUES ('%s','%s');""" %(new_fname, new_lname)
+    query = f"INSERT INTO investor (firstname, lastname) VALUES ('{new_fname}','{new_lname}')"
     execute_query(conn, query) 
-    return "add request successful"
+    return "Investor added successfully"
 
-#edit users - edits all values code similar to homework 2 extra credit
+# Edit an investor
 @app.route('/api/investor_edit', methods=['PUT'])
-def api_update_all():
+def api_edit_investor():
     request_data = request.get_json()
     idToUpdate = request_data["ID"]
     newfname = request_data["firstname"]
     newlname = request_data["lastname"]
-    for i in range(len(investor_tb)):
-        if investor_tb[i]['ID'] == idToUpdate:
-            query = """UPDATE investor 
-            SET firstname = '%s', lastname = '%s' 
-            WHERE id = %s""" %(newfname, newlname, idToUpdate)
-            execute_query(conn,query)
+    query = f"UPDATE investor SET firstname = '{newfname}', lastname = '{newlname}' WHERE id = {idToUpdate}"
+    execute_query(conn, query)
+    return "Investor updated successfully"
 
-#deletes user
+# Delete an investor
 @app.route('/api/delete_investor', methods=['DELETE'])
-def api_delete():
+def api_delete_investor():
     request_data = request.get_json()
     idToDelete = request_data['id']
-    for i in range(len(investor_tb) -1, -1, -1):
-        if investor_tb[i]["ID"] == idToDelete:
-            #query to delete where the id matches
-            query = "DELETE FROM investor WHERE ID = %s" %(idToDelete)
-            execute_query(conn, query)
-            return "delete request successful"
+    query = f"DELETE FROM investor WHERE ID = {idToDelete}"
+    execute_query(conn, query)
+    return "Investor deleted successfully"
 
-#add stock
+# Add stock
 @app.route('/api/addstock', methods=['POST'])
-def api_add():
+def api_add_stock():
     request_data = request.get_json()
     new_stockname = request_data['stockname']
     new_abbr = request_data['abbreviation']
     new_price = request_data['currentprice']
-    query = '''INSERT INTO stock (stockname, abbreviation, currentprice)
-    VALUES ('%s','%s', %s )''' %(new_stockname, new_abbr, new_price)
-    execute_query(conn,query)
-    return "add reqeust successful"
+    query = f"INSERT INTO stock (stockname, abbreviation, currentprice) VALUES ('{new_stockname}','{new_abbr}', {new_price})"
+    execute_query(conn, query)
+    return "Stock added successfully"
 
-#edit stock
+# Edit stock
 @app.route('/api/edit_stock', methods=['PUT'])
-def api_update_all():
+def api_edit_stock():
     request_data = request.get_json()
     idToUpdate = request_data["ID"]
     newsname = request_data["stockname"]
     newabb = request_data["abbreviation"]
     newprice = request_data["currentprice"]
-    for i in range(len(stock_tb)):
-        if stock_tb[i]['ID'] == idToUpdate:
-            query = """UPDATE stock 
-            SET stockname = '%s', abbreviation = '%s', currentprice = %s
-            WHERE id = %s""" %(newsname, newabb, newprice, idToUpdate)
-            execute_query(conn, query)
-            return "stock edit was successful"
+    query = f"UPDATE stock SET stockname = '{newsname}', abbreviation = '{newabb}', currentprice = {newprice} WHERE id = {idToUpdate}"
+    execute_query(conn, query)
+    return "Stock updated successfully"
 
-#delete stock
+# Delete stock
 @app.route('/api/delete_stock', methods=['DELETE'])
-def api_delete():
+def api_delete_stock():
     request_data = request.get_json()
     idToDelete = request_data['id']
-    for i in range(len(stock_tb) -1, -1, -1):
-        if stock_tb[i]["ID"] == idToDelete:
-            #query to delete where the id matches
-            query = "DELETE FROM stock WHERE ID = %s" %(idToDelete)
-            execute_query(conn, query)
-            return "delete request successful"
+    query = f"DELETE FROM stock WHERE ID = {idToDelete}"
+    execute_query(conn, query)
+    return "Stock deleted successfully"
 
-#add bond
+# Add bond
 @app.route('/api/add_bond', methods=['POST'])
-def api_add():
+def api_add_bond():
     request_data = request.get_json()
-    new_stockname = request_data['bondname']
+    new_bondname = request_data['bondname']
     new_abbr = request_data['abbreviation']
     new_price = request_data['currentprice']
-    query = '''INSERT INTO bond (stockname, abbreviation, currentprice)
-    VALUES ('%s','%s', %s )''' %(new_stockname, new_abbr, new_price)
-    execute_query(conn,query)
-    return "add reqeust successful"
+    query = f"INSERT INTO bond (bondname, abbreviation, currentprice) VALUES ('{new_bondname}','{new_abbr}', {new_price})"
+    execute_query(conn, query)
+    return "Bond added successfully"
 
-#edit bond
+# Edit bond
 @app.route('/api/edit_bond', methods=['PUT'])
-def api_update_all():
+def api_edit_bond():
     request_data = request.get_json()
     idToUpdate = request_data["ID"]
     newbname = request_data["bondname"]
     newabb = request_data["abbreviation"]
     newprice = request_data["currentprice"]
-    for i in range(len(bond_tb)):
-        if bond_tb[i]['ID'] == idToUpdate:
-            query = """UPDATE stock 
-            SET stockname = '%s', abbreviation = '%s', currentprice = %s
-            WHERE id = %s""" %(newbname, newabb, newprice, idToUpdate)
-            execute_query(conn, query)
-            return "bond edit was successful"
+    query = f"UPDATE bond SET bondname = '{newbname}', abbreviation = '{newabb}', currentprice = {newprice} WHERE id = {idToUpdate}"
+    execute_query(conn, query)
+    return "Bond updated successfully"
 
-#delete bond
+# Delete bond
 @app.route('/api/delete_bond', methods=['DELETE'])
-def api_delete():
+def api_delete_bond():
     request_data = request.get_json()
     idToDelete = request_data['id']
-    for i in range(len(bond_tb) -1, -1, -1):
-        if bond_tb[i]["ID"] == idToDelete:
-            #query to delete where the id matches
-            query = "DELETE FROM bond WHERE ID = %s" %(idToDelete)
-            execute_query(conn, query)
-            return "delete request successful"
-        
-# Eman's Part
+    query = f"DELETE FROM bond WHERE ID = {idToDelete}"
+    execute_query(conn, query)
+    return "Bond deleted successfully"
+
 # Investor Portfolio (Stocks and Bonds)
 @app.route('/api/investor_portfolio', methods=['GET'])
 def api_investor_portfolio():
@@ -179,10 +152,7 @@ def api_investor_portfolio():
     bond_query = f"SELECT b.bondname, bt.quantity FROM bondtransaction bt JOIN bond b ON bt.bondid = b.id WHERE bt.investorid = {investor_id}"
     bond_portfolio = execute_read_query(conn, bond_query)
 
-    return jsonify({
-        'stocks': stock_portfolio,
-        'bonds': bond_portfolio
-    })
+    return jsonify({'stocks': stock_portfolio, 'bonds': bond_portfolio})
 
 # Stock Transaction (Buy/Sell)
 @app.route('/api/stock_transaction', methods=['POST'])
