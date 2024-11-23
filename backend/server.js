@@ -1,6 +1,3 @@
-// utilized chat to beak down some concepts 
-// set up static variables
-// used code from exam and hwk 4
 const express = require("express");
 const axios = require("axios");
 const path = require("path");
