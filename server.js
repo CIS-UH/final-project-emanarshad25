@@ -9,7 +9,7 @@ const bodyParser = require('body-parser')
 app.set('view engine', 'ejs');
 
 // route path to pages file within views
-app.set('views', path.join(__dirname, 'views/pages'));
+app.set('views', path.join(__dirname, 'frontend/views/pages'));
 
 // static folder for public assets (CSS, JS, images)
 app.use(express.static('./public'));
