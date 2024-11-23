@@ -1,0 +1,68 @@
+<%# Add/Delete Transactions Page for Stocks %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head.ejs'); %>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Manage Stock Transactions</h1>
+        </header>
+        <main>
+            <h2>Add Stock Transaction</h2>
+            <form action="/stocktransaction" method="POST">
+                <div>
+                    <label for="investorid">Investor:</label>
+                    <select name="investorid" id="investorid">
+                        <% investors.forEach(investor => { %>
+                        <option value="<%= investor.id %>"><%= investor.firstname %> <%= investor.lastname %></option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div>
+                    <label for="stockid">Stock:</label>
+                    <select name="stockid" id="stockid">
+                        <% stocks.forEach(stock => { %>
+                        <option value="<%= stock.id %>"><%= stock.stockname %> (<%= stock.abbreviation %>)</option>
+                        <% }) %>
+                    </select>
+                </div>
+                <div>
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" name="quantity" id="quantity" required>
+                </div>
+                <button type="submit">Add Transaction</button>
+            </form>
+
+            <h2>Delete Stock Transactions</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Stock Name</th>
+                        <th>Quantity</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% transactions.forEach(transaction => { %>
+                    <tr>
+                        <td><%= transaction.stockname %></td>
+                        <td><%= transaction.quantity %></td>
+                        <td>
+                            <form action="/stocktransaction/delete" method="POST">
+                                <input type="hidden" name="transactionID" value="<%= transaction.transactionID %>">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </main>
+        <footer>
+            <p>&copy; 2024 Stock Brokerage System</p>
+        </footer>
+    </div>
+</body>
+</html>
