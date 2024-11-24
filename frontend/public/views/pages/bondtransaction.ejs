@@ -1,68 +1,68 @@
-<%# Add/Delete Transactions Page for Bonds %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <%- include('../partials/head.ejs'); %>
+  <%- include('../partials/head.ejs'); %>
+  <title>Bond Transactions</title>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Manage Bond Transactions</h1>
-        </header>
-        <main>
-            <h2>Add Bond Transaction</h2>
-            <form action="/bondtransaction" method="POST">
-                <div>
-                    <label for="investorid">Investor:</label>
-                    <select name="investorid" id="investorid">
-                        <% investors.forEach(investor => { %>
-                        <option value="<%= investor.id %>"><%= investor.firstname %> <%= investor.lastname %></option>
-                        <% }) %>
-                    </select>
-                </div>
-                <div>
-                    <label for="bondid">Bond:</label>
-                    <select name="bondid" id="bondid">
-                        <% bonds.forEach(bond => { %>
-                        <option value="<%= bond.id %>"><%= bond.bondname %> (<%= bond.abbreviation %>)</option>
-                        <% }) %>
-                    </select>
-                </div>
-                <div>
-                    <label for="quantity">Quantity:</label>
-                    <input type="number" name="quantity" id="quantity" required>
-                </div>
-                <button type="submit">Add Transaction</button>
-            </form>
-
-            <h2>Delete Bond Transactions</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Bond Name</th>
-                        <th>Quantity</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% transactions.forEach(transaction => { %>
-                    <tr>
-                        <td><%= transaction.bondname %></td>
-                        <td><%= transaction.quantity %></td>
-                        <td>
-                            <form action="/bondtransaction/delete" method="POST">
-                                <input type="hidden" name="transactionID" value="<%= transaction.transactionID %>">
-                                <button type="submit">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        </main>
-        <footer>
-            <p>&copy; 2024 Stock Brokerage System</p>
-        </footer>
-    </div>
+  <div class="container">
+    <h1>Bond Transactions</h1>
+    
+    <!-- Add Bond Transaction -->
+    <section>
+      <h2>Add Bond Transaction</h2>
+      <form action="/bondtransaction/add" method="POST">
+        <div>
+          <label for="investor-id">Investor ID:</label>
+          <input type="number" id="investor-id" name="investorid" required>
+        </div>
+        <div>
+          <label for="bond-id">Bond ID:</label>
+          <input type="number" id="bond-id" name="bondid" required>
+        </div>
+        <div>
+          <label for="quantity">Quantity:</label>
+          <input type="number" id="quantity" name="quantity" required>
+        </div>
+        <button type="submit">Add Transaction</button>
+      </form>
+    </section>
+    
+    <!-- View and Delete Bond Transactions -->
+    <% if (transactions && transactions.length > 0) { %>
+      <section>
+        <h2>All Bond Transactions</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Transaction ID</th>
+              <th>Investor ID</th>
+              <th>Bond ID</th>
+              <th>Quantity</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% transactions.forEach(transaction => { %>
+              <tr>
+                <td><%= transaction.id %></td>
+                <td><%= transaction.investorid %></td>
+                <td><%= transaction.bondid %></td>
+                <td><%= transaction.quantity %></td>
+                <td>
+                  <form action="/bondtransaction/delete/<%= transaction.id %>" method="POST" style="display:inline;">
+                    <button type="submit">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </section>
+    <% } else { %>
+      <p>No bond transactions found.</p>
+    <% } %>
+  </div>
+  <a href="/">Back to Home</a>
 </body>
 </html>

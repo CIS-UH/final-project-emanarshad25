@@ -1,79 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <%- include('../partials/head.ejs'); %>
+  <%- include('../partials/head.ejs'); %>
+  <title>Investor Portfolio</title>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Portfolio for Investor: <%= portfolio.investorName %></h1>
-        </header>
-        <main>
-            <h2>Stocks</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Stock Name</th>
-                        <th>Abbreviation</th>
-                        <th>Quantity</th>
-                        <th>Current Price</th>
-                        <th>Total Value</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% portfolio.stocks.forEach(stock => { %>
-                    <tr>
-                        <td><%= stock.stockname %></td>
-                        <td><%= stock.abbreviation %></td>
-                        <td><%= stock.quantity %></td>
-                        <td>$<%= stock.currentprice %></td>
-                        <td>$<%= (stock.quantity * stock.currentprice).toFixed(2) %></td>
-                        <td>
-                            <form action="/stocktransaction/delete" method="POST">
-                                <input type="hidden" name="transactionID" value="<%= stock.transactionID %>">
-                                <button type="submit">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    <% }) %>
-                </tbody>
-            </table>
+  <div class="container">
+    <h1>Investor Portfolio</h1>
 
-            <h2>Bonds</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Bond Name</th>
-                        <th>Abbreviation</th>
-                        <th>Quantity</th>
-                        <th>Current Price</th>
-                        <th>Total Value</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <% portfolio.bonds.forEach(bond => { %>
-                    <tr>
-                        <td><%= bond.bondname %></td>
-                        <td><%= bond.abbreviation %></td>
-                        <td><%= bond.quantity %></td>
-                        <td>$<%= bond.currentprice %></td>
-                        <td>$<%= (bond.quantity * bond.currentprice).toFixed(2) %></td>
-                        <td>
-                            <form action="/bondtransaction/delete" method="POST">
-                                <input type="hidden" name="transactionID" value="<%= bond.transactionID %>">
-                                <button type="submit">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    <% }) %>
-                </tbody>
-            </table>
-        </main>
-        <footer>
-            <p>&copy; 2024 Stock Brokerage System</p>
-        </footer>
-    </div>
+    <!-- Portfolio Details -->
+    <% if (portfolio) { %>
+      <section>
+        <h2>Portfolio for Investor ID: <%= portfolio.investorid %></h2>
+        <h3>Stocks</h3>
+        <% if (portfolio.stocks && portfolio.stocks.length > 0) { %>
+          <ul>
+            <% portfolio.stocks.forEach(stock => { %>
+              <li><%= stock.stockname %> (<%= stock.abbreviation %>): <%= stock.quantity %> shares</li>
+            <% }) %>
+          </ul>
+        <% } else { %>
+          <p>No stocks in portfolio.</p>
+        <% } %>
+
+        <h3>Bonds</h3>
+        <% if (portfolio.bonds && portfolio.bonds.length > 0) { %>
+          <ul>
+            <% portfolio.bonds.forEach(bond => { %>
+              <li><%= bond.bondname %> (<%= bond.abbreviation %>): <%= bond.quantity %> bonds</li>
+            <% }) %>
+          </ul>
+        <% } else { %>
+          <p>No bonds in portfolio.</p>
+        <% } %>
+      </section>
+    <% } else { %>
+      <p>No portfolio data available. Please check the investor ID.</p>
+    <% } %>
+  </div>
+  <a href="/">Back to Home</a>
 </body>
 </html>
